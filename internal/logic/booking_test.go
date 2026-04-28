@@ -39,7 +39,7 @@ func TestCalcularPrecio(t *testing.T) {
 		{"Dia laboral sin descuento", "2026-04-30", "10:00", "12:00", 200.00},
 		{"Fin de semana sin descuento", "2026-05-03", "10:00", "12:00", 250.00},
 		{"Descuento de volumen", "2026-04-30", "09:00", "14:00", 400.00},
-		{"Fin de semana con descuento", "2026-05-03", "08:00", "13:00", 375.00},
+		{"Fin de semana con descuento", "2026-05-03", "08:00", "13:00", 500.00},
 	}
 
 	for _, tc := range cases {

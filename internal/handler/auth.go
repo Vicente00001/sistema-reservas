@@ -2,8 +2,6 @@ package handler
 
 import (
 	"net/http"
-
-	"proyecto-monolito/internal/auth"
 	"proyecto-monolito/internal/model"
 )
 

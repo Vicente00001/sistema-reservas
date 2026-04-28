@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"database/sql"
 	"log"
 	"net/http"
@@ -15,7 +14,6 @@ import (
 	_ "modernc.org/sqlite"
 
 	"proyecto-monolito/internal/auth"
-	"proyecto-monolito/internal/db"
 	"proyecto-monolito/internal/handler"
 	"proyecto-monolito/internal/store"
 	"proyecto-monolito/internal/template"
@@ -47,7 +45,6 @@ func runServer(port, dbPath, secret string) error {
 		return err
 	}
 
-	queries := db.New(dbConn)
 	store := store.NewStore(dbConn)
 	renderer, err := template.NewRenderer()
 	if err != nil {

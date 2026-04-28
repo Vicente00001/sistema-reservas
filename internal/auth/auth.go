@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"encoding/gob"
 	"errors"
 	"net/http"
 
@@ -22,6 +23,10 @@ const (
 type Auth struct {
 	store        store.Store
 	sessionStore *sessions.CookieStore
+}
+
+func init() {
+	gob.Register(int64(0))
 }
 
 func NewAuth(store store.Store, sessionStore *sessions.CookieStore) *Auth {

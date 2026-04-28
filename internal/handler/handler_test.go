@@ -71,7 +71,7 @@ func setupTestServer(t *testing.T) (*httptest.Server, *sessions.CookieStore, *st
 }
 
 func TestLoginAndCreateSpace(t *testing.T) {
-	server, sessionStore, appStore := setupTestServer(t)
+	server, _, appStore := setupTestServer(t)
 	defer server.Close()
 
 	jar, err := cookiejar.New(nil)
@@ -126,6 +126,6 @@ func TestLoginAndCreateSpace(t *testing.T) {
 	body, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
 	if !strings.Contains(string(body), "Sala A") {
-		t.Fatal("expected created space in response")
+		t.Fatalf("expected created space in response, got body: %s", string(body))
 	}
 }
