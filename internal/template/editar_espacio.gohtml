@@ -2,28 +2,185 @@
 {{ template "layout" . }}
 {{ end }}
 {{ define "content" }}
-<div class="bg-white rounded-xl shadow p-8 mx-auto max-w-2xl">
-  <h2 class="text-2xl font-semibold mb-4">Editar espacio</h2>
-  {{ $space := .Payload }}
-  <form action="/espacios/{{ $space.ID }}/editar" method="post" class="grid gap-4">
-    <div class="grid sm:grid-cols-2 gap-4">
-      <label class="block"><span class="text-sm">Nombre</span><input name="nombre" value="{{ $space.Nombre }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Tipo</span><input name="tipo" value="{{ $space.Tipo }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+{{ $space := .Payload }}
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6 flex items-center gap-3">
+    <a href="/espacios/{{ $space.ID }}" class="text-gray-400 hover:text-gray-700 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">Editar espacio</h2>
+      <p class="text-sm text-gray-500">{{ $space.Nombre }}</p>
     </div>
-    <div class="grid sm:grid-cols-2 gap-4">
-      <label class="block"><span class="text-sm">Apertura</span><input name="hora_apertura" type="time" value="{{ $space.HoraApertura }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Cierre</span><input name="hora_cierre" type="time" value="{{ $space.HoraCierre }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-    </div>
-    <div class="grid sm:grid-cols-3 gap-4">
-      <label class="block"><span class="text-sm">Duración mínima (min)</span><input name="duracion_min_minutos" type="number" value="{{ $space.DuracionMinMinutos }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Precio hora</span><input name="precio_hora" type="number" step="0.01" value="{{ $space.PrecioHora }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Recargo fin de semana</span><input name="recargo_fin_semana" type="number" step="0.01" value="{{ $space.RecargoFinSemana }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-    </div>
-    <div class="grid sm:grid-cols-2 gap-4">
-      <label class="block"><span class="text-sm">Descuento volumen</span><input name="descuento_volumen" type="number" step="0.01" value="{{ $space.DescuentoVolumen }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Horas para descuento</span><input name="horas_para_descuento" type="number" value="{{ $space.HorasParaDescuento }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-    </div>
-    <button class="rounded bg-slate-800 text-white px-6 py-3">Actualizar espacio</button>
-  </form>
+  </div>
+
+  <div class="card">
+    <form action="/espacios/{{ $space.ID }}/editar" method="post" class="space-y-6">
+
+      <!-- Información básica -->
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Información básica</h3>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="nombre" class="label-text">
+              Nombre
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Nombre descriptivo del espacio, ej: "Sala de reuniones B".</span>
+              </span>
+            </label>
+            <input id="nombre" name="nombre" value="{{ $space.Nombre }}" required class="input-base" />
+          </div>
+          <div>
+            <label for="tipo" class="label-text">
+              Tipo
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Categoría del espacio: Sala, Oficina, Auditorio, Coworking, etc.</span>
+              </span>
+            </label>
+            <input id="tipo" name="tipo" value="{{ $space.Tipo }}" required class="input-base" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Horario -->
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Horario</h3>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label for="hora_apertura" class="label-text">
+              Hora de apertura
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Hora a partir de la cual el espacio está disponible para reservar.</span>
+              </span>
+            </label>
+            <select id="hora_apertura" name="hora_apertura" required class="input-base time-select"
+                    data-default="{{ $space.HoraApertura }}"></select>
+          </div>
+          <div>
+            <label for="hora_cierre" class="label-text">
+              Hora de cierre
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Hora límite a partir de la cual no se aceptan nuevas reservas.</span>
+              </span>
+            </label>
+            <select id="hora_cierre" name="hora_cierre" required class="input-base time-select"
+                    data-default="{{ $space.HoraCierre }}"></select>
+          </div>
+          <div>
+            <label for="duracion_min_minutos" class="label-text">
+              Duración mínima
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Tiempo mínimo en minutos que debe durar una reserva. Reservas más cortas serán rechazadas.</span>
+              </span>
+            </label>
+            <select id="duracion_min_minutos" name="duracion_min_minutos" required class="input-base">
+              <option value="30" {{ if eq $space.DuracionMinMinutos 30 }}selected{{ end }}>30 minutos</option>
+              <option value="60" {{ if eq $space.DuracionMinMinutos 60 }}selected{{ end }}>1 hora</option>
+              <option value="90" {{ if eq $space.DuracionMinMinutos 90 }}selected{{ end }}>1 hora 30 min</option>
+              <option value="120" {{ if eq $space.DuracionMinMinutos 120 }}selected{{ end }}>2 horas</option>
+              <option value="180" {{ if eq $space.DuracionMinMinutos 180 }}selected{{ end }}>3 horas</option>
+              <option value="240" {{ if eq $space.DuracionMinMinutos 240 }}selected{{ end }}>4 horas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precios -->
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Precios y descuentos</h3>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="precio_hora" class="label-text">
+              Precio por hora ($)
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Tarifa base del espacio por cada hora de uso.</span>
+              </span>
+            </label>
+            <input id="precio_hora" name="precio_hora" type="number" step="0.01" value="{{ $space.PrecioHora }}" required class="input-base" />
+          </div>
+          <div>
+            <label for="recargo_fin_semana" class="label-text">
+              Recargo fin de semana
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Porcentaje adicional para reservas en sábado o domingo. Decimal: 0.20 = 20% más caro. Pon 0 si no aplica.</span>
+              </span>
+            </label>
+            <div class="flex items-center gap-2 mt-1">
+              <input id="recargo_fin_semana" name="recargo_fin_semana" type="number" step="0.01" min="0" max="1"
+                     value="{{ $space.RecargoFinSemana }}" required
+                     class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+              <span class="text-xs text-gray-400 whitespace-nowrap">ej: 0.20</span>
+            </div>
+          </div>
+          <div>
+            <label for="descuento_volumen" class="label-text">
+              Descuento por volumen
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Descuento aplicado cuando la reserva supera las horas mínimas. Decimal: 0.10 = 10% de descuento. Pon 0 si no aplica.</span>
+              </span>
+            </label>
+            <div class="flex items-center gap-2 mt-1">
+              <input id="descuento_volumen" name="descuento_volumen" type="number" step="0.01" min="0" max="1"
+                     value="{{ $space.DescuentoVolumen }}" required
+                     class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+              <span class="text-xs text-gray-400 whitespace-nowrap">ej: 0.10</span>
+            </div>
+          </div>
+          <div>
+            <label for="horas_para_descuento" class="label-text">
+              Mínimo de horas para descuento
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Número de horas que debe superar la reserva para que se aplique el descuento por volumen.</span>
+              </span>
+            </label>
+            <select id="horas_para_descuento" name="horas_para_descuento" required class="input-base">
+              <option value="0" {{ if eq $space.HorasParaDescuento 0 }}selected{{ end }}>Sin descuento por volumen</option>
+              <option value="2" {{ if eq $space.HorasParaDescuento 2 }}selected{{ end }}>Desde 2 horas</option>
+              <option value="3" {{ if eq $space.HorasParaDescuento 3 }}selected{{ end }}>Desde 3 horas</option>
+              <option value="4" {{ if eq $space.HorasParaDescuento 4 }}selected{{ end }}>Desde 4 horas</option>
+              <option value="6" {{ if eq $space.HorasParaDescuento 6 }}selected{{ end }}>Desde 6 horas</option>
+              <option value="8" {{ if eq $space.HorasParaDescuento 8 }}selected{{ end }}>Desde 8 horas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+        <a href="/espacios/{{ $space.ID }}" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary">Guardar cambios</button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<script>
+(function() {
+  function buildTimeOptions(sel, defaultVal) {
+    sel.innerHTML = '<option value="">-- Seleccionar hora --</option>';
+    for (var h = 0; h < 24; h++) {
+      for (var m = 0; m < 60; m += 30) {
+        var hh = h.toString().padStart(2, '0');
+        var mm = m.toString().padStart(2, '0');
+        var val = hh + ':' + mm;
+        var opt = new Option(val, val, false, val === defaultVal);
+        sel.appendChild(opt);
+      }
+    }
+  }
+  document.querySelectorAll('.time-select').forEach(function(el) {
+    buildTimeOptions(el, el.dataset.default || '');
+  });
+})();
+</script>
 {{ end }}

@@ -4,32 +4,133 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ .Title }}</title>
-  <link rel="stylesheet" href="/static/output.css" />
+  <title>{{ .Title }} — ReservaEspacios</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+        }
+      }
+    }
+  </script>
+  <style type="text/tailwindcss">
+    body { font-family: 'Inter', sans-serif; }
+
+    .input-base {
+      @apply mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900
+             placeholder-gray-400 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500;
+    }
+    .btn-primary {
+      @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-indigo-600 text-white
+             px-4 py-2 text-sm font-medium transition hover:bg-indigo-700
+             focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-1 cursor-pointer;
+    }
+    .btn-secondary {
+      @apply inline-flex items-center justify-center gap-1.5 rounded-lg border border-gray-300
+             bg-white text-gray-700 px-4 py-2 text-sm font-medium transition
+             hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-1 cursor-pointer;
+    }
+    .btn-danger {
+      @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-red-500 text-white
+             px-4 py-2 text-sm font-medium transition hover:bg-red-600
+             focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-1 cursor-pointer;
+    }
+    .btn-success {
+      @apply inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-600 text-white
+             px-4 py-2 text-sm font-medium transition hover:bg-emerald-700
+             focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-1 cursor-pointer;
+    }
+    .card {
+      @apply bg-white rounded-2xl shadow-sm border border-gray-100 p-6;
+    }
+    .label-text {
+      @apply flex items-center gap-1.5 text-sm font-medium text-gray-700 mb-1;
+    }
+    /* Tooltip */
+    .tooltip-wrap {
+      @apply relative inline-flex items-center;
+    }
+    .tooltip-btn {
+      @apply inline-flex items-center justify-center w-4 h-4 rounded-full bg-gray-200
+             text-gray-500 text-xs font-bold cursor-default leading-none
+             hover:bg-indigo-100 hover:text-indigo-600 transition select-none;
+    }
+    .tooltip-box {
+      @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-56 rounded-lg bg-gray-900
+             text-white text-xs leading-snug px-3 py-2 shadow-lg
+             pointer-events-none opacity-0 transition-opacity duration-150 z-50 text-center;
+    }
+    .tooltip-box::after {
+      content: '';
+      @apply absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent;
+      border-top-color: #111827;
+    }
+    .tooltip-wrap:hover .tooltip-box,
+    .tooltip-wrap:focus-within .tooltip-box {
+      @apply opacity-100;
+    }
+  </style>
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
 </head>
-<body class="bg-slate-100 text-slate-900">
-  <div class="min-h-screen flex flex-col items-center p-4">
-    <header class="w-full max-w-5xl mb-6">
-      <div class="flex justify-between items-center py-4 px-6 bg-white shadow rounded-lg">
-        <h1 class="text-xl font-bold">Sistema de reservas</h1>
-        {{ if .UserID }}
-        <form action="/logout" method="post">
-          <button class="rounded-md bg-slate-800 text-white px-4 py-2">Cerrar sesión</button>
-        </form>
-        {{ end }}
-      </div>
-    </header>
-    <main class="w-full max-w-5xl">
-      {{ if .Flash }}
-      <div class="mb-4 rounded-md bg-emerald-100 border border-emerald-200 text-emerald-900 px-4 py-3">{{ .Flash }}</div>
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-sans">
+
+  <!-- Navbar -->
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <a href="/espacios" class="flex items-center gap-2 font-bold text-indigo-600 text-lg tracking-tight">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        ReservaEspacios
+      </a>
+      {{ if .UserID }}
+      <form action="/logout" method="post">
+        <button class="btn-secondary">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+          </svg>
+          Cerrar sesión
+        </button>
+      </form>
       {{ end }}
-      {{ if .Error }}
-      <div class="mb-4 rounded-md bg-rose-100 border border-rose-200 text-rose-900 px-4 py-3">{{ .Error }}</div>
-      {{ end }}
-      {{ template "content" . }}
-    </main>
+    </div>
+  </header>
+
+  <!-- Alerts -->
+  <div class="max-w-5xl mx-auto w-full px-4 pt-4">
+    {{ if .Flash }}
+    <div class="flex items-center gap-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 mb-4 text-sm">
+      <svg class="w-5 h-5 flex-shrink-0 text-emerald-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+      </svg>
+      {{ .Flash }}
+    </div>
+    {{ end }}
+    {{ if .Error }}
+    <div class="flex items-center gap-3 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 mb-4 text-sm">
+      <svg class="w-5 h-5 flex-shrink-0 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+      </svg>
+      {{ .Error }}
+    </div>
+    {{ end }}
   </div>
+
+  <!-- Content -->
+  <main class="max-w-5xl mx-auto w-full px-4 py-6 flex-1">
+    {{ template "content" . }}
+  </main>
+
+  <footer class="border-t border-gray-100 mt-auto">
+    <div class="max-w-5xl mx-auto px-4 py-3 text-xs text-gray-400 text-center">
+      ReservaEspacios &copy; 2026
+    </div>
+  </footer>
 </body>
 </html>
 {{ end }}

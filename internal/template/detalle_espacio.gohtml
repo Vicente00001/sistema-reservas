@@ -3,65 +3,227 @@
 {{ end }}
 {{ define "content" }}
 {{ $space := .Payload.Space }}
-<div class="grid gap-6">
-  <div class="bg-white rounded-xl shadow p-6">
-    <div class="flex justify-between items-start gap-4">
-      <div>
-        <h2 class="text-2xl font-semibold">{{ $space.Nombre }}</h2>
-        <p class="text-sm text-slate-600">Tipo: {{ $space.Tipo }}</p>
+
+<!-- Header del espacio -->
+<div class="flex items-start justify-between mb-6">
+  <div class="flex items-center gap-3">
+    <a href="/espacios" class="text-gray-400 hover:text-gray-700 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">{{ $space.Nombre }}</h2>
+      <p class="text-sm text-gray-500">{{ $space.Tipo }}</p>
+    </div>
+  </div>
+  <a href="/espacios/{{ $space.ID }}/editar" class="btn-secondary">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+    </svg>
+    Editar
+  </a>
+</div>
+
+<div class="grid gap-5">
+
+  <!-- Datos del espacio -->
+  <div class="card">
+    <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Detalles del espacio</h3>
+    <dl class="grid sm:grid-cols-3 gap-3 text-sm">
+      <div class="bg-gray-50 rounded-xl p-3">
+        <dt class="text-gray-500 mb-0.5 flex items-center gap-1">
+          Horario
+          <span class="tooltip-wrap" tabindex="0">
+            <span class="tooltip-btn">?</span>
+            <span class="tooltip-box">Rango de horas en que el espacio está disponible para ser reservado.</span>
+          </span>
+        </dt>
+        <dd class="font-medium text-gray-900">{{ $space.HoraApertura }} – {{ $space.HoraCierre }}</dd>
       </div>
-      <a href="/espacios/{{ $space.ID }}/editar" class="rounded bg-slate-800 text-white px-4 py-2">Editar</a>
-    </div>
-    <div class="mt-4 grid sm:grid-cols-2 gap-4 text-sm text-slate-700">
-      <div>Apertura: {{ $space.HoraApertura }}</div>
-      <div>Cierre: {{ $space.HoraCierre }}</div>
-      <div>Duración mínima: {{ $space.DuracionMinMinutos }} min</div>
-      <div>Precio hora: ${{ printf "%.2f" $space.PrecioHora }}</div>
-      <div>Recargo fin de semana: {{ printf "%.2f" (mulFloat $space.RecargoFinSemana 100) }}%</div>
-      <div>Descuento volumen: {{ printf "%.2f" (mulFloat $space.DescuentoVolumen 100) }}%</div>
-    </div>
+      <div class="bg-gray-50 rounded-xl p-3">
+        <dt class="text-gray-500 mb-0.5 flex items-center gap-1">
+          Duración mínima
+          <span class="tooltip-wrap" tabindex="0">
+            <span class="tooltip-btn">?</span>
+            <span class="tooltip-box">Tiempo mínimo requerido para poder hacer una reserva.</span>
+          </span>
+        </dt>
+        <dd class="font-medium text-gray-900">{{ $space.DuracionMinMinutos }} min</dd>
+      </div>
+      <div class="bg-gray-50 rounded-xl p-3">
+        <dt class="text-gray-500 mb-0.5 flex items-center gap-1">
+          Precio por hora
+          <span class="tooltip-wrap" tabindex="0">
+            <span class="tooltip-btn">?</span>
+            <span class="tooltip-box">Tarifa base. El precio total depende de la duración, el día y los descuentos configurados.</span>
+          </span>
+        </dt>
+        <dd class="font-medium text-gray-900">${{ printf "%.2f" $space.PrecioHora }}</dd>
+      </div>
+      <div class="bg-gray-50 rounded-xl p-3">
+        <dt class="text-gray-500 mb-0.5 flex items-center gap-1">
+          Recargo fin de semana
+          <span class="tooltip-wrap" tabindex="0">
+            <span class="tooltip-btn">?</span>
+            <span class="tooltip-box">Porcentaje extra aplicado en reservas de sábado o domingo.</span>
+          </span>
+        </dt>
+        <dd class="font-medium text-gray-900">{{ printf "%.0f" (mulFloat $space.RecargoFinSemana 100) }}%</dd>
+      </div>
+      <div class="bg-gray-50 rounded-xl p-3">
+        <dt class="text-gray-500 mb-0.5 flex items-center gap-1">
+          Descuento por volumen
+          <span class="tooltip-wrap" tabindex="0">
+            <span class="tooltip-btn">?</span>
+            <span class="tooltip-box">Descuento aplicado cuando la reserva supera las horas mínimas definidas.</span>
+          </span>
+        </dt>
+        <dd class="font-medium text-gray-900">{{ printf "%.0f" (mulFloat $space.DescuentoVolumen 100) }}% desde {{ $space.HorasParaDescuento }}h</dd>
+      </div>
+    </dl>
   </div>
 
-  <div class="bg-white rounded-xl shadow p-6">
-    <h3 class="text-xl font-semibold mb-4">Consultar disponibilidad y precio</h3>
-    <form hx-get="/api/reservas/disponibilidad" hx-target="#availability" hx-swap="outerHTML" class="grid sm:grid-cols-4 gap-4">
+  <!-- Consultar disponibilidad -->
+  <div class="card">
+    <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Consultar disponibilidad y precio</h3>
+    <form hx-get="/api/reservas/disponibilidad"
+          hx-target="#availability-result"
+          hx-swap="innerHTML"
+          class="grid sm:grid-cols-4 gap-4 items-end">
       <input type="hidden" name="espacio_id" value="{{ $space.ID }}" />
-      <label class="block"><span class="text-sm">Fecha</span><input name="fecha" type="date" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Hora inicio</span><input name="hora_inicio" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Hora fin</span><input name="hora_fin" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <button class="self-end rounded bg-slate-800 text-white px-4 py-2">Verificar</button>
+      <div>
+        <label class="label-text">
+          Fecha
+          <span class="tooltip-wrap" tabindex="0">
+            <span class="tooltip-btn">?</span>
+            <span class="tooltip-box">Día en que quieres verificar si hay disponibilidad.</span>
+          </span>
+        </label>
+        <input name="fecha" type="date" required class="input-base" />
+      </div>
+      <div>
+        <label class="label-text">Hora inicio</label>
+        <select name="hora_inicio" required class="input-base time-select-dispon"></select>
+      </div>
+      <div>
+        <label class="label-text">Hora fin</label>
+        <select name="hora_fin" required class="input-base time-select-dispon"></select>
+      </div>
+      <button type="submit" class="btn-secondary">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        Verificar
+      </button>
     </form>
-    <div id="availability" class="mt-4 text-sm text-slate-700">Usa el formulario para comprobar horarios.</div>
+    <div id="availability-result" class="mt-4 text-sm text-gray-500 italic">
+      Selecciona fecha y horario para comprobar disponibilidad.
+    </div>
   </div>
 
-  <div class="bg-white rounded-xl shadow p-6">
-    <h3 class="text-xl font-semibold mb-4">Reservar horario</h3>
-    <form action="/espacios/{{ $space.ID }}/reservas" method="post" class="grid sm:grid-cols-4 gap-4">
-      <label class="block"><span class="text-sm">Fecha</span><input name="fecha" type="date" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Hora inicio</span><input name="hora_inicio" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Hora fin</span><input name="hora_fin" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <button class="self-end rounded bg-emerald-600 text-white px-4 py-2">Reservar</button>
+  <!-- Hacer reserva -->
+  <div class="card">
+    <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Hacer una reserva</h3>
+    <form action="/espacios/{{ $space.ID }}/reservas" method="post"
+          class="grid sm:grid-cols-4 gap-4 items-end">
+      <div>
+        <label class="label-text">
+          Fecha
+          <span class="tooltip-wrap" tabindex="0">
+            <span class="tooltip-btn">?</span>
+            <span class="tooltip-box">Día en que quieres reservar el espacio.</span>
+          </span>
+        </label>
+        <input name="fecha" type="date" required class="input-base" />
+      </div>
+      <div>
+        <label class="label-text">Hora inicio</label>
+        <select name="hora_inicio" required class="input-base time-select-reserva"></select>
+      </div>
+      <div>
+        <label class="label-text">Hora fin</label>
+        <select name="hora_fin" required class="input-base time-select-reserva"></select>
+      </div>
+      <button type="submit" class="btn-success">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+        </svg>
+        Reservar
+      </button>
     </form>
   </div>
 
-  <div class="bg-white rounded-xl shadow p-6">
-    <h3 class="text-xl font-semibold mb-4">Reservas confirmadas</h3>
-    <div class="space-y-3">
-      {{ $reservas := .Payload.Reservas }}
-      {{ if and $reservas (len $reservas) }}
-        {{ range $reservas }}
-        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-slate-50 rounded-lg p-4">
-          <div>
-            <p class="font-semibold">{{ .Fecha }} {{ .HoraInicio }} - {{ .HoraFin }}</p>
-            <p class="text-sm text-slate-600">Total: ${{ printf "%.2f" .PrecioTotal }}</p>
+  <!-- Reservas confirmadas -->
+  <div class="card">
+    <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Reservas confirmadas</h3>
+    {{ $reservas := .Payload.Reservas }}
+    {{ if and $reservas (len $reservas) }}
+    <div class="divide-y divide-gray-100">
+      {{ range $reservas }}
+      <div class="flex items-center justify-between py-3 gap-4">
+        <div class="flex items-center gap-3">
+          <div class="flex-shrink-0 w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
+            <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
           </div>
-          <button hx-post="/espacios/{{ $.Payload.Space.ID }}/reservas/{{ .ID }}/cancelar" hx-swap="outerHTML" class="rounded bg-rose-500 text-white px-4 py-2">Cancelar</button>
+          <div>
+            <p class="text-sm font-medium text-gray-900">{{ .Fecha }} &middot; {{ .HoraInicio }} – {{ .HoraFin }}</p>
+            <p class="text-xs text-gray-500">Total: ${{ printf "%.2f" .PrecioTotal }}</p>
+          </div>
         </div>
-        {{ end }}
-      {{ else }}
-        <p class="text-slate-600">No hay reservas confirmadas para este espacio.</p>
+        <button hx-post="/espacios/{{ $.Payload.Space.ID }}/reservas/{{ .ID }}/cancelar"
+                hx-swap="outerHTML"
+                hx-confirm="¿Confirmas la cancelación de esta reserva?"
+                class="btn-danger text-xs px-3 py-1.5 flex-shrink-0">
+          Cancelar
+        </button>
+      </div>
       {{ end }}
     </div>
+    {{ else }}
+    <div class="flex flex-col items-center py-10 text-center">
+      <svg class="w-10 h-10 text-gray-200 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+      <p class="text-sm text-gray-400">No hay reservas confirmadas aún.</p>
+    </div>
+    {{ end }}
   </div>
+
 </div>
+
+<script>
+(function() {
+  var open = "{{ $space.HoraApertura }}";
+  var close = "{{ $space.HoraCierre }}";
+
+  function toMin(t) {
+    var parts = t.split(':');
+    return parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  }
+  function fromMin(m) {
+    var h = Math.floor(m / 60).toString().padStart(2, '0');
+    var mm = (m % 60).toString().padStart(2, '0');
+    return h + ':' + mm;
+  }
+
+  function buildOptions(sel, startMin, endMin, defaultVal) {
+    sel.innerHTML = '<option value="">-- Seleccionar --</option>';
+    for (var m = startMin; m <= endMin; m += 30) {
+      var val = fromMin(m);
+      var opt = new Option(val, val, false, val === defaultVal);
+      sel.appendChild(opt);
+    }
+  }
+
+  var openMin = toMin(open);
+  var closeMin = toMin(close);
+
+  document.querySelectorAll('.time-select-dispon, .time-select-reserva').forEach(function(el) {
+    buildOptions(el, openMin, closeMin, '');
+  });
+})();
+</script>
 {{ end }}

@@ -2,30 +2,49 @@
 {{ template "layout" . }}
 {{ end }}
 {{ define "content" }}
-<div class="flex justify-between items-center mb-6">
+<div class="flex items-center justify-between mb-6">
   <div>
-    <h2 class="text-2xl font-semibold">Mis espacios</h2>
-    <p class="text-sm text-slate-600">Administra tus espacios y reserva horarios.</p>
+    <h2 class="text-xl font-bold text-gray-900">Mis espacios</h2>
+    <p class="text-sm text-gray-500 mt-0.5">Gestiona tus espacios y reservas</p>
   </div>
-  <a href="/espacios/nuevo" class="rounded bg-slate-800 text-white px-4 py-2">Nuevo espacio</a>
+  <a href="/espacios/nuevo" class="btn-primary">
+    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+    </svg>
+    Nuevo espacio
+  </a>
 </div>
-<div class="grid gap-4">
-  {{ $spaces := .Payload }}
-  {{ if and $spaces (len $spaces) }}
-    {{ range $spaces }}
-    <div class="bg-white rounded-xl shadow p-5 flex justify-between items-center">
-      <div>
-        <h3 class="text-lg font-semibold">{{ .Nombre }}</h3>
-        <p class="text-sm text-slate-600">Tipo: {{ .Tipo }}</p>
+
+{{ $spaces := .Payload }}
+{{ if and $spaces (len $spaces) }}
+<div class="grid gap-3">
+  {{ range $spaces }}
+  <div class="card flex items-center justify-between gap-4 hover:shadow-md transition-shadow">
+    <div class="flex items-center gap-4">
+      <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-brand-light flex items-center justify-center">
+        <svg class="w-5 h-5 text-brand" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+        </svg>
       </div>
-      <div class="flex gap-2">
-        <a href="/espacios/{{ .ID }}" class="rounded bg-slate-100 px-4 py-2 text-slate-800">Ver</a>
-        <a href="/espacios/{{ .ID }}/editar" class="rounded bg-slate-800 text-white px-4 py-2">Editar</a>
+      <div>
+        <h3 class="font-semibold text-gray-900">{{ .Nombre }}</h3>
+        <p class="text-sm text-gray-500">{{ .Tipo }} &middot; {{ .HoraApertura }} – {{ .HoraCierre }}</p>
       </div>
     </div>
-    {{ end }}
-  {{ else }}
-    <div class="bg-white rounded-xl shadow p-6 text-slate-700">No hay espacios registrados. Crea uno nuevo para comenzar.</div>
+    <div class="flex items-center gap-2 flex-shrink-0">
+      <a href="/espacios/{{ .ID }}" class="btn-secondary">Ver</a>
+      <a href="/espacios/{{ .ID }}/editar" class="btn-primary">Editar</a>
+    </div>
+  </div>
   {{ end }}
 </div>
+{{ else }}
+<div class="card flex flex-col items-center justify-center py-16 text-center">
+  <svg class="w-12 h-12 text-gray-300 mb-4" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+  </svg>
+  <p class="text-gray-500 mb-4">Aún no tienes espacios registrados.</p>
+  <a href="/espacios/nuevo" class="btn-primary">Crear mi primer espacio</a>
+</div>
+{{ end }}
 {{ end }}

@@ -2,19 +2,31 @@
 {{ template "layout" . }}
 {{ end }}
 {{ define "content" }}
-<div class="bg-white rounded-xl shadow p-8 mx-auto max-w-md">
-  <h2 class="text-2xl font-semibold mb-4">Registro</h2>
-  <form action="/registro" method="post" class="space-y-4">
-    <label class="block">
-      <span class="text-sm font-medium">Email</span>
-      <input name="email" type="email" required class="mt-1 w-full rounded border px-3 py-2" />
-    </label>
-    <label class="block">
-      <span class="text-sm font-medium">Contraseña</span>
-      <input name="password" type="password" required class="mt-1 w-full rounded border px-3 py-2" />
-    </label>
-    <button class="w-full rounded bg-slate-800 text-white py-2">Crear cuenta</button>
-  </form>
-  <p class="mt-4 text-sm text-slate-600">¿Ya tienes cuenta? <a href="/login" class="text-slate-900 underline">Inicia sesión</a></p>
+<div class="flex items-center justify-center py-8">
+  <div class="card w-full max-w-md">
+    <div class="mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">Crear cuenta</h2>
+      <p class="text-sm text-gray-500 mt-1">Completa los datos para registrarte</p>
+    </div>
+    <form action="/registro" method="post" class="space-y-4">
+      <div>
+        <label for="email" class="label-text">Email</label>
+        <input id="email" name="email" type="email" required autocomplete="email"
+               class="input-base" placeholder="usuario@ejemplo.com" />
+      </div>
+      <div>
+        <label for="password" class="label-text">Contraseña</label>
+        <input id="password" name="password" type="password" required autocomplete="new-password"
+               class="input-base" placeholder="Mínimo 8 caracteres" />
+      </div>
+      <button type="submit" class="btn-primary w-full mt-2">
+        Crear cuenta
+      </button>
+    </form>
+    <p class="mt-5 text-sm text-gray-500 text-center">
+      ¿Ya tienes cuenta?
+      <a href="/login" class="font-medium text-brand hover:underline">Inicia sesión</a>
+    </p>
+  </div>
 </div>
 {{ end }}

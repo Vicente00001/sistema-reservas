@@ -2,27 +2,181 @@
 {{ template "layout" . }}
 {{ end }}
 {{ define "content" }}
-<div class="bg-white rounded-xl shadow p-8 mx-auto max-w-2xl">
-  <h2 class="text-2xl font-semibold mb-4">Nuevo espacio</h2>
-  <form action="/espacios" method="post" class="grid gap-4">
-    <div class="grid sm:grid-cols-2 gap-4">
-      <label class="block"><span class="text-sm">Nombre</span><input name="nombre" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Tipo</span><input name="tipo" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+<div class="max-w-2xl mx-auto">
+  <div class="mb-6 flex items-center gap-3">
+    <a href="/espacios" class="text-gray-400 hover:text-gray-700 transition">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+      </svg>
+    </a>
+    <div>
+      <h2 class="text-xl font-bold text-gray-900">Nuevo espacio</h2>
+      <p class="text-sm text-gray-500">Completa la información del espacio</p>
     </div>
-    <div class="grid sm:grid-cols-2 gap-4">
-      <label class="block"><span class="text-sm">Apertura</span><input name="hora_apertura" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Cierre</span><input name="hora_cierre" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-    </div>
-    <div class="grid sm:grid-cols-3 gap-4">
-      <label class="block"><span class="text-sm">Duración mínima (min)</span><input name="duracion_min_minutos" type="number" value="60" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Precio hora</span><input name="precio_hora" type="number" step="0.01" value="50" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Recargo fin de semana</span><input name="recargo_fin_semana" type="number" step="0.01" value="0.20" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-    </div>
-    <div class="grid sm:grid-cols-2 gap-4">
-      <label class="block"><span class="text-sm">Descuento volumen</span><input name="descuento_volumen" type="number" step="0.01" value="0.10" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-      <label class="block"><span class="text-sm">Horas para descuento</span><input name="horas_para_descuento" type="number" value="4" required class="mt-1 w-full rounded border px-3 py-2" /></label>
-    </div>
-    <button class="rounded bg-slate-800 text-white px-6 py-3">Guardar espacio</button>
-  </form>
+  </div>
+
+  <div class="card">
+    <form action="/espacios" method="post" class="space-y-6">
+
+      <!-- Información básica -->
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Información básica</h3>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="nombre" class="label-text">
+              Nombre
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Nombre descriptivo del espacio, ej: "Sala de reuniones B".</span>
+              </span>
+            </label>
+            <input id="nombre" name="nombre" required class="input-base" placeholder="Ej: Sala de conferencias A" />
+          </div>
+          <div>
+            <label for="tipo" class="label-text">
+              Tipo
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Categoría del espacio: Sala, Oficina, Auditorio, Coworking, etc.</span>
+              </span>
+            </label>
+            <input id="tipo" name="tipo" required class="input-base" placeholder="Ej: Sala, Oficina, Auditorio" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Horario -->
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Horario</h3>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div>
+            <label for="hora_apertura" class="label-text">
+              Hora de apertura
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Hora a partir de la cual el espacio está disponible para reservar.</span>
+              </span>
+            </label>
+            <select id="hora_apertura" name="hora_apertura" required class="input-base time-select"></select>
+          </div>
+          <div>
+            <label for="hora_cierre" class="label-text">
+              Hora de cierre
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Hora límite a partir de la cual no se aceptan nuevas reservas.</span>
+              </span>
+            </label>
+            <select id="hora_cierre" name="hora_cierre" required class="input-base time-select" data-default="18:00"></select>
+          </div>
+          <div>
+            <label for="duracion_min_minutos" class="label-text">
+              Duración mínima
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Tiempo mínimo en minutos que debe durar una reserva. Reservas más cortas serán rechazadas.</span>
+              </span>
+            </label>
+            <select id="duracion_min_minutos" name="duracion_min_minutos" required class="input-base">
+              <option value="30">30 minutos</option>
+              <option value="60" selected>1 hora</option>
+              <option value="90">1 hora 30 min</option>
+              <option value="120">2 horas</option>
+              <option value="180">3 horas</option>
+              <option value="240">4 horas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precios -->
+      <div>
+        <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-3">Precios y descuentos</h3>
+        <div class="grid sm:grid-cols-2 gap-4">
+          <div>
+            <label for="precio_hora" class="label-text">
+              Precio por hora ($)
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Tarifa base del espacio por cada hora de uso. El precio total se calcula multiplicando esta tarifa por la duración de la reserva.</span>
+              </span>
+            </label>
+            <input id="precio_hora" name="precio_hora" type="number" step="0.01" min="0" value="50" required class="input-base" placeholder="50.00" />
+          </div>
+          <div>
+            <label for="recargo_fin_semana" class="label-text">
+              Recargo fin de semana
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Porcentaje adicional que se cobra en reservas de sábado o domingo. Ingresa un decimal: 0.20 = 20% más caro. Si no aplica, pon 0.</span>
+              </span>
+            </label>
+            <div class="flex items-center gap-2 mt-1">
+              <input id="recargo_fin_semana" name="recargo_fin_semana" type="number" step="0.01" min="0" max="1" value="0.20" required
+                     class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+              <span class="text-xs text-gray-400 whitespace-nowrap">ej: 0.20</span>
+            </div>
+          </div>
+          <div>
+            <label for="descuento_volumen" class="label-text">
+              Descuento por volumen
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Descuento aplicado cuando la reserva supera las horas mínimas definidas. Ingresa un decimal: 0.10 = 10% de descuento. Si no aplica, pon 0.</span>
+              </span>
+            </label>
+            <div class="flex items-center gap-2 mt-1">
+              <input id="descuento_volumen" name="descuento_volumen" type="number" step="0.01" min="0" max="1" value="0.10" required
+                     class="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" />
+              <span class="text-xs text-gray-400 whitespace-nowrap">ej: 0.10</span>
+            </div>
+          </div>
+          <div>
+            <label for="horas_para_descuento" class="label-text">
+              Mínimo de horas para descuento
+              <span class="tooltip-wrap" tabindex="0">
+                <span class="tooltip-btn">?</span>
+                <span class="tooltip-box">Número de horas que debe superar una reserva para que se aplique el descuento por volumen. Si el descuento es 0, este valor se ignora.</span>
+              </span>
+            </label>
+            <select id="horas_para_descuento" name="horas_para_descuento" required class="input-base">
+              <option value="0">Sin descuento por volumen</option>
+              <option value="2">Desde 2 horas</option>
+              <option value="3">Desde 3 horas</option>
+              <option value="4" selected>Desde 4 horas</option>
+              <option value="6">Desde 6 horas</option>
+              <option value="8">Desde 8 horas</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 pt-2 border-t border-gray-100">
+        <a href="/espacios" class="btn-secondary">Cancelar</a>
+        <button type="submit" class="btn-primary">Guardar espacio</button>
+      </div>
+    </form>
+  </div>
 </div>
+
+<script>
+(function() {
+  function buildTimeOptions(sel, defaultVal) {
+    sel.innerHTML = '<option value="">-- Seleccionar hora --</option>';
+    for (var h = 0; h < 24; h++) {
+      for (var m = 0; m < 60; m += 30) {
+        var hh = h.toString().padStart(2, '0');
+        var mm = m.toString().padStart(2, '0');
+        var val = hh + ':' + mm;
+        var label = hh + ':' + mm;
+        var opt = new Option(label, val, false, val === defaultVal);
+        sel.appendChild(opt);
+      }
+    }
+  }
+  document.querySelectorAll('.time-select').forEach(function(el) {
+    buildTimeOptions(el, el.dataset.default || '08:00');
+  });
+})();
+</script>
 {{ end }}
