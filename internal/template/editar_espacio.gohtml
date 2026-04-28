@@ -1,0 +1,29 @@
+{{ define "editar_espacio.gohtml" }}
+{{ template "layout" . }}
+{{ end }}
+{{ define "content" }}
+<div class="bg-white rounded-xl shadow p-8 mx-auto max-w-2xl">
+  <h2 class="text-2xl font-semibold mb-4">Editar espacio</h2>
+  {{ $space := .Payload }}
+  <form action="/espacios/{{ $space.ID }}/editar" method="post" class="grid gap-4">
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block"><span class="text-sm">Nombre</span><input name="nombre" value="{{ $space.Nombre }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Tipo</span><input name="tipo" value="{{ $space.Tipo }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block"><span class="text-sm">Apertura</span><input name="hora_apertura" type="time" value="{{ $space.HoraApertura }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Cierre</span><input name="hora_cierre" type="time" value="{{ $space.HoraCierre }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+    </div>
+    <div class="grid sm:grid-cols-3 gap-4">
+      <label class="block"><span class="text-sm">Duración mínima (min)</span><input name="duracion_min_minutos" type="number" value="{{ $space.DuracionMinMinutos }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Precio hora</span><input name="precio_hora" type="number" step="0.01" value="{{ $space.PrecioHora }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Recargo fin de semana</span><input name="recargo_fin_semana" type="number" step="0.01" value="{{ $space.RecargoFinSemana }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+    </div>
+    <div class="grid sm:grid-cols-2 gap-4">
+      <label class="block"><span class="text-sm">Descuento volumen</span><input name="descuento_volumen" type="number" step="0.01" value="{{ $space.DescuentoVolumen }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Horas para descuento</span><input name="horas_para_descuento" type="number" value="{{ $space.HorasParaDescuento }}" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+    </div>
+    <button class="rounded bg-slate-800 text-white px-6 py-3">Actualizar espacio</button>
+  </form>
+</div>
+{{ end }}

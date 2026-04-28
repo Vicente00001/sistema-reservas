@@ -1,0 +1,67 @@
+{{ define "detalle_espacio.gohtml" }}
+{{ template "layout" . }}
+{{ end }}
+{{ define "content" }}
+{{ $space := .Payload.Space }}
+<div class="grid gap-6">
+  <div class="bg-white rounded-xl shadow p-6">
+    <div class="flex justify-between items-start gap-4">
+      <div>
+        <h2 class="text-2xl font-semibold">{{ $space.Nombre }}</h2>
+        <p class="text-sm text-slate-600">Tipo: {{ $space.Tipo }}</p>
+      </div>
+      <a href="/espacios/{{ $space.ID }}/editar" class="rounded bg-slate-800 text-white px-4 py-2">Editar</a>
+    </div>
+    <div class="mt-4 grid sm:grid-cols-2 gap-4 text-sm text-slate-700">
+      <div>Apertura: {{ $space.HoraApertura }}</div>
+      <div>Cierre: {{ $space.HoraCierre }}</div>
+      <div>Duración mínima: {{ $space.DuracionMinMinutos }} min</div>
+      <div>Precio hora: ${{ printf "%.2f" $space.PrecioHora }}</div>
+      <div>Recargo fin de semana: {{ printf "%.2f" (mulFloat $space.RecargoFinSemana 100) }}%</div>
+      <div>Descuento volumen: {{ printf "%.2f" (mulFloat $space.DescuentoVolumen 100) }}%</div>
+    </div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <h3 class="text-xl font-semibold mb-4">Consultar disponibilidad y precio</h3>
+    <form hx-get="/api/reservas/disponibilidad" hx-target="#availability" hx-swap="outerHTML" class="grid sm:grid-cols-4 gap-4">
+      <input type="hidden" name="espacio_id" value="{{ $space.ID }}" />
+      <label class="block"><span class="text-sm">Fecha</span><input name="fecha" type="date" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Hora inicio</span><input name="hora_inicio" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Hora fin</span><input name="hora_fin" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <button class="self-end rounded bg-slate-800 text-white px-4 py-2">Verificar</button>
+    </form>
+    <div id="availability" class="mt-4 text-sm text-slate-700">Usa el formulario para comprobar horarios.</div>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <h3 class="text-xl font-semibold mb-4">Reservar horario</h3>
+    <form action="/espacios/{{ $space.ID }}/reservas" method="post" class="grid sm:grid-cols-4 gap-4">
+      <label class="block"><span class="text-sm">Fecha</span><input name="fecha" type="date" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Hora inicio</span><input name="hora_inicio" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <label class="block"><span class="text-sm">Hora fin</span><input name="hora_fin" type="time" required class="mt-1 w-full rounded border px-3 py-2" /></label>
+      <button class="self-end rounded bg-emerald-600 text-white px-4 py-2">Reservar</button>
+    </form>
+  </div>
+
+  <div class="bg-white rounded-xl shadow p-6">
+    <h3 class="text-xl font-semibold mb-4">Reservas confirmadas</h3>
+    <div class="space-y-3">
+      {{ $reservas := .Payload.Reservas }}
+      {{ if and $reservas (len $reservas) }}
+        {{ range $reservas }}
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-slate-50 rounded-lg p-4">
+          <div>
+            <p class="font-semibold">{{ .Fecha }} {{ .HoraInicio }} - {{ .HoraFin }}</p>
+            <p class="text-sm text-slate-600">Total: ${{ printf "%.2f" .PrecioTotal }}</p>
+          </div>
+          <button hx-post="/espacios/{{ $.Payload.Space.ID }}/reservas/{{ .ID }}/cancelar" hx-swap="outerHTML" class="rounded bg-rose-500 text-white px-4 py-2">Cancelar</button>
+        </div>
+        {{ end }}
+      {{ else }}
+        <p class="text-slate-600">No hay reservas confirmadas para este espacio.</p>
+      {{ end }}
+    </div>
+  </div>
+</div>
+{{ end }}

@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - run: go mod tidy
+      - run: go test ./... -coverprofile=coverage.out
+      - run: |
+          COVERAGE=$(go tool cover -func=coverage.out | grep total | awk '{print substr($3, 1, length($3)-1)}')
+          echo "Coverage: $COVERAGE%"
+          if [ "$(echo "$COVERAGE >= 60" | bc -l)" -ne 1 ]; then
+            echo "Coverage threshold not met"
+            exit 1
+          fi

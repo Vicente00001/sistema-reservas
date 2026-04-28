@@ -1,0 +1,12 @@
+version: "1"
+packages:
+  - name: "db"
+    path: "internal/db"
+    engine: "sqlite"
+    schema:
+      - "migrations"
+    queries:
+      - "queries"
+    emit_json_tags: false
+    emit_prepared_queries: false
+    emit_interface: false

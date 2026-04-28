@@ -1,0 +1,20 @@
+{{ define "login.gohtml" }}
+{{ template "layout" . }}
+{{ end }}
+{{ define "content" }}
+<div class="bg-white rounded-xl shadow p-8 mx-auto max-w-md">
+  <h2 class="text-2xl font-semibold mb-4">Iniciar sesión</h2>
+  <form action="/login" method="post" class="space-y-4">
+    <label class="block">
+      <span class="text-sm font-medium">Email</span>
+      <input name="email" type="email" required class="mt-1 w-full rounded border px-3 py-2" />
+    </label>
+    <label class="block">
+      <span class="text-sm font-medium">Contraseña</span>
+      <input name="password" type="password" required class="mt-1 w-full rounded border px-3 py-2" />
+    </label>
+    <button class="w-full rounded bg-slate-800 text-white py-2">Ingresar</button>
+  </form>
+  <p class="mt-4 text-sm text-slate-600">¿No tienes cuenta? <a href="/registro" class="text-slate-900 underline">Regístrate</a></p>
+</div>
+{{ end }}

@@ -1,0 +1,11 @@
+version: '3.9'
+services:
+  app:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/data
+    environment:
+      DB_PATH: /data/data.db
+      APP_SECRET: cambiar-por-una-clave-segura
