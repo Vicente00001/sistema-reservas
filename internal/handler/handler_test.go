@@ -234,7 +234,7 @@ func TestLoginInvalidCredentials(t *testing.T) {
 	}
 	body, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
-	if !strings.Contains(string(body), "nv") { // "inválidas"
+	if !strings.Contains(string(body), "nv") { // "inválidas" o similar en credenciales inválidas
 		t.Error("esperaba mensaje de error de credenciales")
 	}
 }
@@ -362,7 +362,6 @@ func TestCreateReserva(t *testing.T) {
 	}
 	body, _ := io.ReadAll(resp.Body)
 	resp.Body.Close()
-	// Debe mostrar el detalle con la reserva o mensaje de éxito
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("esperaba 200, obtuve %d", resp.StatusCode)
 	}
@@ -434,6 +433,70 @@ func TestLogout(t *testing.T) {
 	resp.Body.Close()
 	if !strings.Contains(resp.Request.URL.Path, "login") {
 		t.Errorf("tras logout, esperaba redirect a /login, URL: %s", resp.Request.URL)
+	}
+}
+
+// ─── ERRORES Y CASOS EXTREMOS (Aumentar Cobertura) ─────────────────────────
+
+func TestEspacioErrorPaths(t *testing.T) {
+	server, _, appStore := setupTestServer(t)
+	defer server.Close()
+
+	// Usuario logueado principal
+	client := loginUser(t, server.URL, "userA@example.com", "pass123", appStore)
+	// Otro usuario para probar permisos
+	client2 := loginUser(t, server.URL, "userB@example.com", "pass123", appStore)
+
+	spaceID := createSpace(t, client, server.URL, appStore, "userA@example.com")
+
+	tests := []struct {
+		name   string
+		method string
+		url    string
+		body   url.Values
+		client *http.Client
+		check  string // texto esperado en la respuesta de error
+	}{
+		{"Detalle ID inválido", "GET", "/espacios/abc", nil, client, "ID de espacio inválido"},
+		{"Detalle no encontrado", "GET", "/espacios/9999", nil, client, "Espacio no encontrado"},
+		{"Detalle no autorizado", "GET", "/espacios/" + spaceID, nil, client2, "No autorizado"},
+
+		{"Editar ID inválido", "GET", "/espacios/abc/editar", nil, client, "ID de espacio inválido"},
+		{"Editar no encontrado", "GET", "/espacios/9999/editar", nil, client, "No se encontró el espacio"},
+		{"Editar no autorizado", "GET", "/espacios/" + spaceID + "/editar", nil, client2, "No autorizado"},
+
+		{"Update ID inválido", "POST", "/espacios/abc/editar", nil, client, "ID de espacio inválido"},
+		{"Update no autorizado", "POST", "/espacios/" + spaceID + "/editar", nil, client2, "No autorizado"},
+		{"Update formulario inválido (precio texto)", "POST", "/espacios/" + spaceID + "/editar", url.Values{
+			"nombre": {"Sala"}, "precio_hora": {"invalid"},
+		}, client, "invalid syntax"},
+
+		{"Crear formulario inválido", "POST", "/espacios", url.Values{
+			"nombre": {"Sala"}, "duracion_min_minutos": {"invalid"},
+		}, client, "invalid syntax"},
+
+		{"Cancelar Reserva ID inválido", "POST", "/espacios/" + spaceID + "/reservas/abc/cancelar", nil, client, "ID"},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			var resp *http.Response
+			var err error
+			if tc.method == "GET" {
+				resp, err = tc.client.Get(server.URL + tc.url)
+			} else {
+				resp, err = tc.client.PostForm(server.URL+tc.url, tc.body)
+			}
+			if err != nil {
+				t.Fatalf("request failed: %v", err)
+			}
+			body, _ := io.ReadAll(resp.Body)
+			resp.Body.Close()
+
+			if !strings.Contains(string(body), tc.check) {
+				t.Errorf("esperaba error '%s' en respuesta, body parcial: %s", tc.check, string(body)[:min(len(string(body)), 150)])
+			}
+		})
 	}
 }
 
