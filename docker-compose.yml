@@ -1,11 +1,14 @@
-version: '3.9'
 services:
   app:
     build: .
+    # En local usa el puerto 8080. En Dokploy/producción, Traefik enruta
+    # automáticamente al puerto interno definido por la variable PORT.
+    # No necesitas exponer puertos al host en producción.
     ports:
-      - "8080:8080"
+      - "${PORT:-8080}:${PORT:-8080}"
     volumes:
       - ./data:/data
     environment:
+      PORT: ${PORT:-8080}
       DB_PATH: /data/data.db
-      APP_SECRET: cambiar-por-una-clave-segura
+      APP_SECRET: ${APP_SECRET:-cambiar-por-una-clave-segura}
